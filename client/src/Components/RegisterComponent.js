@@ -65,13 +65,16 @@ function Register(props) {
 
     const validate = (type, value) => {
         const string = value.trim();
+        var regexUsername = /^[0-9]{9,9}$/;
+
         if (type === 'username') {
-            if (string.length !== 9) {
-                setIsValid({ value: false, msg: "\nUsername must be between <br> 9 characters" });
+            if (string.length !== 9 || !regexUsername.test(string)) {
+                setIsValid({ value: false, msg: "\nUsername must be of <br> 9 digits" });
                 return false;
             }
             else {
                 setIsValid({ value: false, msg: "" });
+                console.log("Registration Successful");
                 return true;
             }
         }
@@ -82,7 +85,8 @@ function Register(props) {
                 return false;
             }
             else {
-                setIsValid({ value: true, msg: "" })
+                setIsValid({ value: true, msg: "" });
+                console.log("Registration Successful");
                 return true;
             }
         }
@@ -95,8 +99,8 @@ function Register(props) {
                 <div>
                     <form onSubmit={handleSubmit}>
                         <input type="text" placeholder="Name" value={name} name="name" onChange={handleChange} onBlur={handleBlur} />
-                        <input type="text" placeholder="Registration Number / Teacher ID" value={username} name="username" onChange={handleChange} onBlur={handleBlur} />
-                        <input type="password" placeholder="Password" value={password} name="password" onChange={handleChange} onBlur={handleBlur} />
+                        <input type="text" placeholder="Registration Number / Teacher ID" value={username} name="username" onChange={handleChange} onBlur={handleBlur} required />
+                        <input type="password" placeholder="Password" value={password} name="password" onChange={handleChange} onBlur={handleBlur} required />
                         <input type="password" placeholder="Confirm Password" value={confirmPassword} name="confirmPassword" onChange={handleChange} onBlur={handleBlur} />
 
                         {isStudent ?

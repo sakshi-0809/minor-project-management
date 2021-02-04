@@ -4,6 +4,7 @@ import Login from './LoginComponent';
 import Register from './RegisterComponent';
 import Dashboard from './DashboardComponent';
 import { AuthContext } from '../Context/AuthContext';
+import EditProfile from './EditProfileComponent';
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
     return (
@@ -29,6 +30,7 @@ function Main() {
                 <Register />
             </Route>
             <PrivateRoute path='/dashboard' component={Dashboard} isAuthenticated={authContext.isAuthenticated} />
+            <PrivateRoute path='/editprofile' component={EditProfile} isAuthenticated={authContext.isAuthenticated} />
         </Switch>
     )
 }

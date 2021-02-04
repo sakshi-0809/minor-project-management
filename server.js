@@ -8,9 +8,9 @@ const bcrypt = require('bcryptjs');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const User = require('./user');
+const Course = require('./courses');
 const JWT = require('jsonwebtoken');
 const passportConfig = require('./passportConfig');
-const { findOne } = require('./user');
 
 mongoose.connect('mongodb://localhost/minorProject', { useNewUrlParser: true });
 
@@ -45,6 +45,7 @@ const signToken = userID => {
         sub: userID
     }, "secretcode", { expiresIn: "1h" });
 }
+
 
 app.post('/login', passport.authenticate('local', { session: false }), (req, res) => {
     if (req.isAuthenticated()) {
@@ -87,6 +88,56 @@ app.post('/register', (req, res) => {
         }
     })
 })
+
+app.post('/changeprofile', passport.authenticate('jwt', { session: false }), (req, res) => {
+    User.findOne({ username: req.body.username }, async (err, doc) => {
+        if (err)
+            res.status(500).json({ message: { msgBody: 'Error has occured', msgError: true } });
+        if (doc) {
+            bcrypt.compare(req.body.password, doc.password, async (err, result) => {
+                if (err) {
+                    console.log(err);
+                }
+                if (result === true) {
+                    if (req.body.changePassword) {
+                        doc.password = await bcrypt.hash(req.body.newPassword, 10);
+                        await doc.save(err => {
+                            if (err) {
+                                res.status(500).json({ message: { msgBody: 'Error has occured', msgError: true } });
+                            }
+                            else {
+                                res.status(201).json({ message: { msgBody: 'Changes successfully saved', msgError: false } });
+                            }
+                        })
+                    }
+                }
+                else {
+                    res.status(201).json({ message: { msgBody: 'Wrong Password', msgError: true } });
+                }
+            })
+
+        }
+    })
+})
+
+app.post('/getcourses', (req, res) => {
+    Course.find({ semester: req.body.semester }, async (err, doc) => {
+        if (err)
+            res.status(500).json({ message: { msgBody: 'Error has occured', msgError: true } });
+        if (doc) {
+            let filteredDoc = doc.filter(d => {
+                for (let i = 0; i < d.branch.length; i++) {
+                    if (d.branch[i] == req.body.branch) {
+                        return true;
+                    }
+
+                }
+            })
+            res.status(200).json({ courses: filteredDoc });
+        }
+    })
+})
+
 
 app.get('/authenticated', passport.authenticate('jwt', { session: false }), (req, res) => {
     const { name, _id, username, branch, isStudent, admissionYear } = req.user;
